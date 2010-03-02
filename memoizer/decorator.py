@@ -2,6 +2,7 @@
 
 import inspect
 from os.path import basename, join
+from functools import wraps
 
 from memoizer.config import BACKENDS, CACHE_DIR
 from memoizer.cache import FunctionCache
@@ -26,6 +27,7 @@ def memoize(path=None, backend='pickle', volatile=False):
 		called."""
 	def g(func):
 		cache = [] #declare pointer to function cache
+		@wraps(func)
 		def h(*args, **kwargs):
 			if not cache: #initialize function cache
 				cache_cls = BACKENDS[backend]
