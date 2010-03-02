@@ -54,6 +54,21 @@ class TestDecorator(unittest.TestCase):
 		#function value should match r (because the cached value is returned)
 		self.assertEqual(rand(), r)
 
+	def testDecoratorMetadata(self):
+		#define undecorated function
+		def rand():
+			return random.random()
+		#store metadata
+		name = rand.__name__
+		docs = rand.__doc__
+		del rand
+		#define function once more, now decorated
+		@memoize()
+		def rand():
+			return random.random()
+		#check for same meta data
+		self.assertEquals(name, rand.__name__)
+		self.assertEquals(docs, rand.__doc__)
 
 @memoize()
 def function(argument):
