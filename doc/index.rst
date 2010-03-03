@@ -3,15 +3,15 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Memoizer's documentation!
-====================================
+Memoizer
+========
 
-Memoizer is a Python module that allows to cache a functions return value in 
+Memoizer is a Python module that allows to cache a function's return value in 
 order to prevent repeated calculation. (also known as `Memoization 
 <http://en.wikipedia.org/wiki/Memoization>`_)
 
-An Example
-----------
+A Simple Example
+----------------
 
 Consider a recursive function ``fib`` that computes the n-th Fibonacci number::
 
@@ -29,5 +29,33 @@ why not caching it::
 	    return (n<=2) and 1 or fib(n-1)+fib(n-2)
 		
 Now, when calling ``fib(10)`` again, the value of ``fib(5)`` and all other 
-``fib(n)`` functions are calculated only once. Each subsequent call is 
+``fib(n)`` functions are evaluated only once. Each subsequent call is 
 intercepted and the cached result is returned instead.
+
+
+How to Install
+--------------
+
+.. rubric:: Using Bazaar
+
+For now the only way to install *Memoizer* is to get the source code from
+`Launchpad <http://launchpad.net/memoizer>`_ using `Bazaar 
+<http://bazaar.canonical.com/>`_, a version control system. Simply execute
+``bzr co lp:memoizer``.
+
+
+Advanced Usage
+--------------
+
+There are several more use-cases where caching functions comes in handy. This
+chapter will discuss some of them.
+
+Permanent Caching
+.................
+
+--- will be added soon ---
+
+Caching Hierarchy
+.................
+
+--- will be added soon ---
