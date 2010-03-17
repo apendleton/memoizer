@@ -45,6 +45,7 @@ class BackendTest:
 		obj = Object()
 		obj.abc = "123"
 		cache["object"] = obj
+		cache.sync()
 		del cache
 		
 		#read cache from file and test for consistency

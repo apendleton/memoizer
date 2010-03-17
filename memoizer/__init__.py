@@ -1,3 +1,3 @@
 """Make decorator public"""
 
-from decorator import memoize
+from cache import memoize

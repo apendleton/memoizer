@@ -1,8 +1,8 @@
 """Tests for Memoize Decorator"""
 
-import unittest, random, os
+import unittest, random, os, inspect
 from memoizer import memoize
-from memoizer.decorator import _getPath
+from memoizer.cache import _getPath
 
 class TestDecorator(unittest.TestCase):
 	
@@ -41,14 +41,15 @@ class TestDecorator(unittest.TestCase):
 		if os.path.exists(path):
 			os.remove(path)
 		#apply decorator
-		rand = memoize(path='auto')(rand)
+		rand = memoize(path='auto', backend='pickle')(rand)
 		#remember random value for verification
 		r = rand()
 		#make sure cache file is written
+		rand.sync()
 		del rand 
 		
 		#define function once more
-		@memoize(path='auto')
+		@memoize(path='auto', backend='pickle')
 		def rand():
 			return random.random()
 		#function value should match r (because the cached value is returned)
@@ -56,19 +57,21 @@ class TestDecorator(unittest.TestCase):
 
 	def testDecoratorMetadata(self):
 		#define undecorated function
-		def rand():
+		def rand(my_arg, my_kwarg=123, *args, **kwargs):
 			return random.random()
 		#store metadata
 		name = rand.__name__
 		docs = rand.__doc__
+		spec = inspect.getargspec(rand)
 		del rand
 		#define function once more, now decorated
 		@memoize()
-		def rand():
+		def rand(my_arg, my_kwarg=123, *args, **kwargs):
 			return random.random()
 		#check for same meta data
 		self.assertEquals(name, rand.__name__)
 		self.assertEquals(docs, rand.__doc__)
+		self.assertEquals(spec, inspect.getargspec(rand))
 
 @memoize()
 def function(argument):
