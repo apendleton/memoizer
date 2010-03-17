@@ -1,6 +1,6 @@
 """Simple file based cache using Pickle"""
 
-import sys, cPickle
+import cPickle
 
 class PickleCache:
 	"""Simple file based cache using Pickle
@@ -49,10 +49,3 @@ class PickleCache:
 			cPickle.dump(self._cache, f, self._protocol)
 			f.close()		
 	
-	def __del__(self):
-		"""Try to synchronise before deletion"""
-		try:
-			self.sync()
-		except:
-			print >> sys.stderr, "Memoizer: Could not write to cache file."
-			pass
