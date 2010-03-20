@@ -41,7 +41,7 @@ class TestDecorator(unittest.TestCase):
 		if os.path.exists(path):
 			os.remove(path)
 		#apply decorator
-		rand = memoize(path='auto', backend='pickle')(rand)
+		rand = memoize(backend='pickle')(rand)
 		#remember random value for verification
 		r = rand()
 		#make sure cache file is written
@@ -49,7 +49,7 @@ class TestDecorator(unittest.TestCase):
 		del rand 
 		
 		#define function once more
-		@memoize(path='auto', backend='pickle')
+		@memoize(backend='pickle')
 		def rand():
 			return random.random()
 		#function value should match r (because the cached value is returned)

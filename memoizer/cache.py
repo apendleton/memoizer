@@ -28,7 +28,7 @@ class FunctionCache:
 		if not self.cache and self.backend: 
 			#initialize persistent cache backend
 			cache_cls = BACKENDS[self.backend]
-			if self.path == 'auto':
+			if not self.path:
 				filepath = _getPath(self.callable, args)
 			else:
 				filepath = self.path
