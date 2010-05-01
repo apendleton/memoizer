@@ -13,6 +13,7 @@ DEFAULT_PATH	 = None
 DEFAULT_BACKEND  = None
 DEFAULT_HASH	 = None
 DEFAULT_VOLATILE = None
+DEFAULT_VERBOSE	 = False
 
 CACHE_DIR = normpath(join(tempfile.gettempdir(), "memoizer"))
 

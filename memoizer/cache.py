@@ -1,23 +1,26 @@
-
+import logging
 from inspect import getfile
 from os.path import basename, join
 from memoizer.config import BACKENDS, CACHE_DIR
 from memoizer.config import DEFAULT_PATH, DEFAULT_BACKEND
-from memoizer.config import DEFAULT_HASH, DEFAULT_VOLATILE
+from memoizer.config import DEFAULT_HASH, DEFAULT_VOLATILE, DEFAULT_VERBOSE
 
 try: #try to import module decorator
 	from decorator import decorator
 except ImportError: #load included decorator module
 	from lib.decorator import decorator
 
+log = logging.getLogger("memoizer")
 
 class FunctionCache:
 	
-	def __init__(self, path=None, backend=None, hash=None, volatile=False):
+	def __init__(self, path=None, backend=None, hash=None, volatile=False, 
+			verbose=False):
 		self.path = path
 		self.backend = backend
 		self.hash = hash
 		self.volatile = volatile
+		self.verbose = verbose
 		self.dict = {}
 		self.cache = None
 		self.callable = None
@@ -32,21 +35,34 @@ class FunctionCache:
 				filepath = _getPath(self.callable, args)
 			else:
 				filepath = self.path
+			log.debug("Setup backend %s at \"%s\"" % (cache_cls.__name__, filepath))
 			self.cache = cache_cls(filepath, self.volatile)
 		#lookup caches
 		key = self.getKey(*args, **kwargs)
 		try:
 			result = self.dict[key] #try to load from memory cache
+			if self.verbose: 
+				log.debug("Load %s for args <%s, %s> from memory" % \
+					(self.callable, args, kwargs))
 		except KeyError:
 			if self.cache: 
 				try: #if not in memory cache try persistent cache
 					result = self.cache[key]
+					if self.verbose: 
+						log.debug("Load %s for <%s, %s> from backend" % \
+							(self.callable, args, kwargs))
 				except KeyError:
 					result = self.callable(*args, **kwargs)
+					if self.verbose: 
+						log.debug("Evaluate %s for <%s, %s>" % \
+							(self.callable, args, kwargs))
 					self.cache[key] = result #store in persistent cache
 					self.dict[key] = result  #store in memory cache
 			else: 
 				result = self.callable(*args, **kwargs)
+				if self.verbose: 
+					log.debug("Evaluate %s for <%s, %s>" % \
+						(self.callable, args, kwargs))
 				self.dict[key] = result #only store in memory cache
 		return result
 	
@@ -95,7 +111,7 @@ def _getName(func, args=[]):
 
 
 def memoize(path=DEFAULT_PATH, hash=DEFAULT_HASH, backend=DEFAULT_BACKEND, 
-		volatile=DEFAULT_VOLATILE):
+		volatile=DEFAULT_VOLATILE, verbose=DEFAULT_VERBOSE):
 	"""Memoization Decorator.
 	
 	Functions that are decorated by this decorator are cached and only evaluated
@@ -117,7 +133,7 @@ def memoize(path=DEFAULT_PATH, hash=DEFAULT_HASH, backend=DEFAULT_BACKEND,
 		If ``True`` the cache file is updated on each evaluation of the 
 		function. Otherwise it is updated on exit or when memoizer.sync() is
 		called."""
-	cache = FunctionCache(path, backend, hash, volatile)
+	cache = FunctionCache(path, backend, hash, volatile, verbose)
 	def g(f):
 		@decorator
 		def h(func, *args, **kwargs):
