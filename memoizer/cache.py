@@ -1,9 +1,7 @@
 import logging
 from inspect import getfile
 from os.path import basename, join
-from memoizer.config import BACKENDS, CACHE_DIR
-from memoizer.config import DEFAULT_PATH, DEFAULT_BACKEND
-from memoizer.config import DEFAULT_HASH, DEFAULT_VOLATILE, DEFAULT_VERBOSE
+from memoizer import config
 
 try: #try to import module decorator
 	from decorator import decorator
@@ -30,7 +28,7 @@ class FunctionCache:
 			self.callable = func #remember callable
 		if not self.cache and self.backend: 
 			#initialize persistent cache backend
-			cache_cls = BACKENDS[self.backend]
+			cache_cls = config.BACKENDS[self.backend]
 			if not self.path:
 				filepath = _getPath(self.callable, args)
 			else:
@@ -78,7 +76,7 @@ class FunctionCache:
 
 def _getPath(func, args=[]):
 	"""Default path to cache file"""
-	return join(CACHE_DIR, _getName(func, args))
+	return join(config.CACHE_DIR, _getName(func, args))
 
 
 def _getName(func, args=[]):
@@ -110,17 +108,17 @@ def _getName(func, args=[]):
 	return name +".cache"
 
 
-def memoize(path=DEFAULT_PATH, hash=DEFAULT_HASH, backend=DEFAULT_BACKEND, 
-		volatile=DEFAULT_VOLATILE, verbose=DEFAULT_VERBOSE):
+def memoize(path="default", hash="default", backend="default", 
+		volatile="default", verbose="default"):
 	"""Memoization Decorator.
 	
 	Functions that are decorated by this decorator are cached and only evaluated
 	if its return value can not be retrieved from the cache.
 	
 	path=None
-		Path to a file storing the function cache. If path is ``None`` the cache
-		is not saved to a file. If it is ``'auto'`` a path is generated from the
-		function's name.
+		Path to a file storing the function cache. If path is ``None`` the path 
+		is deduced from the function's name and the CACHE_DIR configuration 
+		variable.
 		
 	hash=None
 		Function that returns the hash value for a set of arguments and key-word
@@ -133,6 +131,22 @@ def memoize(path=DEFAULT_PATH, hash=DEFAULT_HASH, backend=DEFAULT_BACKEND,
 		If ``True`` the cache file is updated on each evaluation of the 
 		function. Otherwise it is updated on exit or when memoizer.sync() is
 		called."""
+		
+	if path == "default":
+		path = config.DEFAULT_PATH
+		
+	if hash == "default":
+		hash = config.DEFAULT_HASH
+	
+	if volatile == "default":
+		volatile = config.DEFAULT_VOLATILE
+	
+	if backend == "default": 
+		backend = config.DEFAULT_BACKEND
+		
+	if verbose == "default":
+		verbose = config.DEFAULT_VERBOSE
+		
 	cache = FunctionCache(path, backend, hash, volatile, verbose)
 	def g(f):
 		@decorator
